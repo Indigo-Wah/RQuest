@@ -50,8 +50,26 @@ class Client(revolt.Client):
     def __init__(self, session: aiohttp.ClientSession, token: Token):
         super().__init__(session=session, token=token.get_token())
 
-    async def on_ready(self):
-        print(f"Logged in as {self.user.name}")
+    async def on_ready(self) -> None:
+        print(f"{self.user.name} is ready!")
+        return await super().on_ready()
+
+    async def on_message(self, message: revolt.Message) -> None:
+        # Pull out the command keyword
+        if not message.content.startswith("!"):
+            return await super().on_message(message)
+
+        # Capture first command keyword
+        match message.content.split(" ")[0][1:].lower():
+            case "ping":
+                await message.channel.send("pong")
+            case "task":
+                # Capture second command keyword
+                match message.content.split(" ")[1].lower():
+                    case "math":
+                        await message.channel.send("Math is hard")
+
+        return await super().on_message(message)
 
 
 async def main():
